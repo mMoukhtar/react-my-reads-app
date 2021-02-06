@@ -11,8 +11,8 @@ class Book extends Component {
         coverHeight: PropType.number.isRequired,
     };
 
-    ShelfChanged = (index) => {
-        console.log(index);
+    ShelfChanged = (shelf) => {
+        console.log(shelf);
     };
 
     render() {
@@ -21,7 +21,7 @@ class Book extends Component {
             <div className="book">
                 <div className="book-top">
                     <BookCover width={coverWidth} height={coverHeight} imageURL={book.imageURL} />
-                    <BookShelfChanger onChange={this.ShelfChanged} shelf={book.shelf} />
+                    <BookShelfChanger updateShelf={this.ShelfChanged} shelf={book.shelf} />
                 </div>
                 <BookInfo title={book.title} author={book.author} />
             </div>

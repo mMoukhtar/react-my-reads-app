@@ -1,31 +1,48 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-const BookShelfChanger = (props) => {
-    const handelOnChange = (e) => {
-        const index = e.target.selectedIndex;
-        console.log(index, e.target[index].value);
-        props.onChange(e.target[index].value);
+class BookShelfChanger extends Component {
+    state = {
+        shelf: '',
     };
 
-    return (
-        <div className="book-shelf-changer">
-            <select onChange={handelOnChange} value={props.shelf}>
-                <option value="move" disabled>
-                    Move to...
-                </option>
-                <option value="currentlyReading">Currently Reading</option>
-                <option value="wantToRead">Want to Read</option>
-                <option value="read">Read</option>
-                <option value="none">None</option>
-            </select>
-        </div>
-    );
-};
+    static protoTypes = {
+        shelf: PropTypes.string.isRequired,
+        updateShelf: PropTypes.func.isRequired,
+    };
 
-BookShelfChanger.protoTypes = {
-    shelf: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired,
-};
+    componentDidMount() {
+        this.updateState(this.props.shelf);
+    }
+
+    updateState = (shelf) => {
+        this.setState(() => ({
+            shelf,
+        }));
+        console.log(this.state);
+    };
+
+    handelOnChange = (e) => {
+        const newShelf = e.target.value;
+        this.updateState(newShelf);
+        this.props.updateShelf(newShelf);
+    };
+
+    render() {
+        return (
+            <div className="book-shelf-changer">
+                <select onChange={this.handelOnChange} value={this.state.shelf}>
+                    <option value="move" disabled>
+                        Move to...
+                    </option>
+                    <option value="currentlyReading">Currently Reading</option>
+                    <option value="wantToRead">Want to Read</option>
+                    <option value="read">Read</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+        );
+    }
+}
 
 export default BookShelfChanger;
