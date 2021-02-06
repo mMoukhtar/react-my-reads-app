@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { Route } from 'react-router-dom';
 import * as BooksAPI from '../api/BooksAPI';
 import BooksList from './BooksList';
+import SearchBooks from './SearchBooks';
 
-class BooksApp extends React.Component {
+class BooksApp extends Component {
     state = {
         booksList: {},
     };
@@ -33,15 +35,12 @@ class BooksApp extends React.Component {
         }, {});
 
     render() {
-        if (Object.keys(this.state.booksList).length === 0) {
-            return <div>Loading</div>;
-        } else {
-            return (
-                <div className="app">
-                    <BooksList list={this.state.booksList} />
-                </div>
-            );
-        }
+        return (
+            <div className="app">
+                <Route path="/" exact render={() => <BooksList list={this.state.booksList} />} />
+                <Route path="/search" render={() => <SearchBooks />} />
+            </div>
+        );
     }
 }
 
