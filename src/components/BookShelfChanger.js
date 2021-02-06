@@ -19,7 +19,6 @@ class BookShelfChanger extends Component {
         this.setState(() => ({
             shelf,
         }));
-        console.log(this.state);
     };
 
     handelOnChange = (e) => {
