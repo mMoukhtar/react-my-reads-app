@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 class BookShelfChanger extends Component {
     state = {
-        shelf: '',
+        shelf: this.props.shelf,
     };
 
     static protoTypes = {
@@ -11,19 +11,11 @@ class BookShelfChanger extends Component {
         updateShelf: PropTypes.func.isRequired,
     };
 
-    componentDidMount() {
-        this.updateState(this.props.shelf);
-    }
-
-    updateState = (shelf) => {
-        this.setState(() => ({
-            shelf,
-        }));
-    };
-
     handelOnChange = (e) => {
         const newShelf = e.target.value;
-        this.updateState(newShelf);
+        this.setState(() => ({
+            shelf: newShelf,
+        }));
         this.props.updateShelf(newShelf);
     };
 

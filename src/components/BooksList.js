@@ -6,6 +6,10 @@ import BookShelf from './BookShelf';
 export class BooksList extends Component {
     static propTypes = { list: PropTypes.object.isRequired };
 
+    changeShelf = (book) => {
+        this.props.onChange(book);
+    };
+
     render() {
         const { list } = this.props;
         const shelves = Object.keys(list);
@@ -25,6 +29,7 @@ export class BooksList extends Component {
                                     .join(' ')
                                     .toUpperCase()}
                                 books={list[shelf]}
+                                onChange={this.changeShelf}
                             />
                         ))}
                     </div>

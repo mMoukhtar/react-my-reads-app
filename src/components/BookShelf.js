@@ -8,6 +8,10 @@ export class BookShelf extends Component {
         title: PropTypes.string.isRequired,
     };
 
+    changeShelf = (book) => {
+        this.props.onChange(book);
+    };
+
     render() {
         const coverWidth = process.env.bookCoverWidth || 128;
         const coverHeight = process.env.bookCoverHeight || 192;
@@ -19,7 +23,12 @@ export class BookShelf extends Component {
                     <ol className="books-grid">
                         {books.map((book) => (
                             <li key={book.id}>
-                                <Book book={book} coverWidth={coverWidth} coverHeight={coverHeight} />
+                                <Book
+                                    book={book}
+                                    coverWidth={coverWidth}
+                                    coverHeight={coverHeight}
+                                    onChange={this.changeShelf}
+                                />
                             </li>
                         ))}
                     </ol>
