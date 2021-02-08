@@ -1,48 +1,39 @@
-import React, { Component } from 'react';
-import PropType from 'prop-types';
+import React from 'react';
+import PropTypes from 'prop-types';
 import BookShelfChanger from './BookShelfChanger';
 import BookCover from './BookCover';
 import BookInfo from './BookInfo';
 
-class Book extends Component {
-    // state = {
-    //     ...this.props.book,
-    // };
+const Book = (props) => {
+    const { coverWidth, coverHeight, book } = props;
+    const {
+        title,
+        authors,
+        shelf,
+        imageLinks: { smallThumbnail },
+    } = book;
 
-    static propTypes = {
-        book: PropType.object.isRequired,
-        coverWidth: PropType.number.isRequired,
-        coverHeight: PropType.number.isRequired,
-    };
-
-    ShelfChanged = (shelf) => {
-        // this.setState((prevState) => ({
-        //     ...prevState,
-        //     shelf,
-        // }));
-        // this.props.onChange(this.state);
-
-        this.props.onChange({ ...this.props.book, shelf });
-    };
-
-    render() {
-        const { coverWidth, coverHeight } = this.props;
-        const {
-            title,
-            authors,
-            shelf,
-            imageLinks: { smallThumbnail },
-        } = this.props.book;
-        return (
-            <div className="book">
-                <div className="book-top">
-                    <BookCover width={coverWidth} height={coverHeight} imageURL={smallThumbnail} />
-                    <BookShelfChanger updateShelf={this.ShelfChanged} shelf={shelf} />
-                </div>
-                <BookInfo title={title} author={authors.join(', ')} />
+    return (
+        <div className="book">
+            <div className="book-top">
+                <BookCover width={coverWidth} height={coverHeight} imageURL={smallThumbnail} />
+                <BookShelfChanger
+                    shelf={shelf}
+                    updateShelf={(newShelf) => {
+                        props.onChange({ oldBook: { ...book }, newShelf });
+                    }}
+                />
             </div>
-        );
-    }
-}
+            <BookInfo title={title} author={authors.join(', ')} />
+        </div>
+    );
+};
+
+Book.propTypes = {
+    book: PropTypes.object.isRequired,
+    coverWidth: PropTypes.number.isRequired,
+    coverHeight: PropTypes.number.isRequired,
+    onChange: PropTypes.func.isRequired,
+};
 
 export default Book;
