@@ -1,45 +1,61 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import * as BooksAPI from '../api/BooksAPI';
+import BookShelf from './BookShelf';
+
+import SearchBooksBar from './SearchBooksBar';
 
 export class SearchBooks extends Component {
     state = {
-        query: '',
+        searchResults: [],
+        isValid: true,
     };
 
-    static propTypes = {};
+    static propTypes = {
+        validSearchKeywords: PropTypes.array.isRequired,
+    };
 
-    updateQuery = (newValue) => {
-        this.setState(() => ({ query: newValue }));
+    isValidQuery = (query) => {
+        const { validSearchKeywords } = this.props;
+        return (
+            validSearchKeywords.filter((keyword) => keyword.toLowerCase().includes(query.toLowerCase()))
+                .length > 0
+        );
+    };
+
+    search = (query) => {
+        if (this.isValidQuery(query)) {
+            if (query !== '') {
+                BooksAPI.search(query).then((data) => {
+                    this.setState(() => ({ searchResults: data, isValid: true }));
+                });
+            } else {
+                this.setState(() => ({ searchResults: [], isValid: true }));
+            }
+        } else {
+            this.setState(() => ({ searchResults: [], isValid: false }));
+        }
+    };
+
+    addToShelf = ({ oldBook, newShelf }) => {
+        newShelf !== 'none' && BooksAPI.update(oldBook, newShelf);
     };
 
     render() {
+        const { searchResults, isValid } = this.state;
         return (
             <div className="search-books">
-                <div className="search-books-bar">
-                    <Link to="/" className="close-search">
-                        Close
-                    </Link>
-                    <div className="search-books-input-wrapper">
-                        <input
-                            type="text"
-                            placeholder="Search by title or author"
-                            value={this.state.query}
-                            onChange={(event) => {
-                                this.updateQuery(event.target.value);
-                            }}
+                <SearchBooksBar search={this.search} />
+                <div className="search-books-results">
+                    {searchResults.length > 0 && (
+                        <BookShelf
+                            title={'Search Results'}
+                            books={searchResults}
+                            onChange={this.addToShelf}
                         />
-                    </div>
+                    )}
+                    {!isValid && <div>Invalid Search Keyworkd!</div>}
                 </div>
-                {this.state.query.length >= 3 && (
-                    <div className="search-books-results">
-                        <ol className="books-grid">
-                            <li>test</li>
-                            <li>test</li>
-                            <li>test</li>
-                        </ol>
-                    </div>
-                )}
             </div>
         );
     }

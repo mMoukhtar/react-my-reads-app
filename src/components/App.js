@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import * as BooksAPI from '../api/BooksAPI';
+import { searchKeywords } from '../api/validSearchKeywords';
 import BooksList from './BooksList';
 import SearchBooks from './SearchBooks';
 
@@ -29,7 +30,6 @@ class BooksApp extends Component {
         BooksAPI.update(oldBook, newShelf).then((data) => {
             this.setState((oldState) => {
                 const oldShelfBooksAfterUpdate = oldState[oldShelf].filter((book) => book.id !== oldBookId);
-                const shelfExists = Object.keys(oldState).includes(newShelf);
                 const containsBooks = oldShelfBooksAfterUpdate.length > 1;
                 // Create new State Object
                 //1. Delete changed shelf from
@@ -66,7 +66,7 @@ class BooksApp extends Component {
                     exact
                     render={() => <BooksList list={this.state} onChange={this.changeShelf} />}
                 />
-                <Route path="/search" render={() => <SearchBooks />} />
+                <Route path="/search" render={() => <SearchBooks validSearchKeywords={searchKeywords} />} />
             </div>
         );
     }

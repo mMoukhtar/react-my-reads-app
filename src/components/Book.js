@@ -8,9 +8,9 @@ const Book = (props) => {
     const { coverWidth, coverHeight, book } = props;
     const {
         title,
-        authors,
-        shelf,
-        imageLinks: { smallThumbnail },
+        authors = ['unknown'],
+        shelf = 'none',
+        imageLinks: { smallThumbnail = 'https://via.placeholder.com/128x192' } = {},
     } = book;
 
     return (

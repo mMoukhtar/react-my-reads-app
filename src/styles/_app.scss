@@ -115,6 +115,23 @@ body,
     outline: none;
 }
 
+.clear-search {
+    background: white;
+    display: block;
+    top: 20px;
+    left: 15px;
+    width: 50px;
+    height: 53px;
+    background-image: url('../icons/cancel.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 28px;
+    font-size: 0;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
 button:active {
     border: red;
     outline: none;
