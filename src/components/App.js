@@ -72,7 +72,7 @@ class BooksApp extends Component {
                     ? [...oldState[newShelf], { ...oldBook, shelf: newShelf }]
                     : [{ ...oldBook, shelf: newShelf }],
             }));
-            //BooksAPI.update(oldBook, newShelf);
+            BooksAPI.update(oldBook, newShelf);
         }
     };
 
