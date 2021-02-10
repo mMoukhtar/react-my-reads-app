@@ -18,7 +18,7 @@ class SearchBooksBar extends Component {
 
     searchChanged = (value) => {
         this.setState(() => ({ query: value }));
-        this.search(value);
+        this.search(value.toLowerCase().trim());
     };
 
     clearSearch = () => {

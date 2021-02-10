@@ -14,14 +14,12 @@ export class SearchBooks extends Component {
     static propTypes = {
         validSearchKeywords: PropTypes.array.isRequired,
         list: PropTypes.array.isRequired,
+        onAddBook: PropTypes.func.isRequired,
     };
 
     isValidQuery = (query) => {
         const { validSearchKeywords } = this.props;
-        return (
-            validSearchKeywords.filter((keyword) => keyword.toLowerCase().includes(query.toLowerCase()))
-                .length > 0
-        );
+        return validSearchKeywords.filter((keyword) => keyword.toLowerCase().includes(query)).length > 0;
     };
 
     // Question
@@ -32,6 +30,7 @@ export class SearchBooks extends Component {
             if (query !== '') {
                 try {
                     const data = await BooksAPI.search(query);
+                    console.log(data);
                     data.forEach((book) => {
                         const matchedBooks = this.props.list.filter((listBooks) => listBooks.id === book.id);
                         matchedBooks.length > 0 && (book.shelf = matchedBooks[0].shelf);
@@ -48,10 +47,6 @@ export class SearchBooks extends Component {
         }
     };
 
-    addToShelf = ({ oldBook, newShelf }) => {
-        newShelf !== 'none' && BooksAPI.update(oldBook, newShelf);
-    };
-
     render() {
         const { searchResults, isValid } = this.state;
         return (
@@ -62,7 +57,7 @@ export class SearchBooks extends Component {
                         <BookShelf
                             title={'Search Results'}
                             books={searchResults}
-                            onChange={this.addToShelf}
+                            onChange={this.props.onAddBook}
                         />
                     )}
                     {!isValid && <div>Invalid Search Keyworkd!</div>}

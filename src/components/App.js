@@ -25,12 +25,11 @@ class BooksApp extends Component {
     // Is this correct or should I use different approach?
     // Question #2:
     // Is there a better way to write the below code?
-    changeShelf = (changes) => {
-        const { oldBook, newShelf } = changes;
+    changeShelf = ({ oldBook, newShelf }) => {
         const { id: oldBookId, shelf: oldShelf } = oldBook;
         this.setState((oldState) => {
             const oldShelfBooksAfterUpdate = oldState[oldShelf].filter((book) => book.id !== oldBookId);
-            const containsBooks = oldShelfBooksAfterUpdate.length > 1;
+            const containsBooks = oldShelfBooksAfterUpdate.length >= 1;
             // Create new State Object
             //1. Delete changed shelf from
             delete oldState[oldShelf];
@@ -38,20 +37,43 @@ class BooksApp extends Component {
             let newState = { ...oldState };
             //3. If selected shelf not none
             //   check if the shelf is none and that shelf exists if doesn't exist create new shelf
-            newShelf !== 'none' && (newState[newShelf] = newState[newShelf] ? newState[newShelf] : []);
-            //   Push book to shelf
-            newState[newShelf].push({
-                ...oldBook,
-                shelf: newShelf,
-            });
+            if (newShelf !== 'none') {
+                newState[newShelf] = newState[newShelf] ? newState[newShelf] : [];
+                //   Push book to shelf
+                newState[newShelf].push({
+                    ...oldBook,
+                    shelf: newShelf,
+                });
+            }
             // 4. If old shelf still cotains books add the updated books to new state object
             containsBooks && (newState[oldBook.shelf] = [...oldShelfBooksAfterUpdate]);
             return newState;
         });
-        // Question #3:
-        // When should I call the API? before I update the state or after updating it?
-        // Also should I use any component event to handle the Update API call?
         BooksAPI.update(oldBook, newShelf);
+    };
+
+    existingBook = (bookId) => {
+        const matchedBooks = Object.values(this.state)
+            .flat()
+            .filter((book) => book.id === bookId);
+        return matchedBooks.length > 0 ? true : false;
+    };
+
+    addBook = ({ oldBook, newShelf }) => {
+        console.log(oldBook, newShelf);
+        if (this.existingBook(oldBook.id)) {
+            console.log('existing');
+            this.changeShelf({ oldBook, newShelf });
+        } else {
+            console.log('new');
+            this.setState((oldState) => ({
+                ...oldState,
+                [newShelf]: oldState[newShelf]
+                    ? [...oldState[newShelf], { ...oldBook, shelf: newShelf }]
+                    : [{ ...oldBook, shelf: newShelf }],
+            }));
+            //BooksAPI.update(oldBook, newShelf);
+        }
     };
 
     groupByShelf = (books) =>
@@ -75,6 +97,7 @@ class BooksApp extends Component {
                         <SearchBooks
                             list={Object.values(this.state).flat()}
                             validSearchKeywords={searchKeywords}
+                            onAddBook={this.addBook}
                         />
                     )}
                 />
