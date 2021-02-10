@@ -13,6 +13,7 @@ export class SearchBooks extends Component {
 
     static propTypes = {
         validSearchKeywords: PropTypes.array.isRequired,
+        list: PropTypes.array.isRequired,
     };
 
     isValidQuery = (query) => {
@@ -23,12 +24,22 @@ export class SearchBooks extends Component {
         );
     };
 
-    search = (query) => {
+    // Question
+    // I used the below logic to compare the list of books returned from search API with the list of
+    // books on shelves! is this the best way to accomplish this task?
+    search = async (query) => {
         if (this.isValidQuery(query)) {
             if (query !== '') {
-                BooksAPI.search(query).then((data) => {
+                try {
+                    const data = await BooksAPI.search(query);
+                    data.forEach((book) => {
+                        const matchedBooks = this.props.list.filter((listBooks) => listBooks.id === book.id);
+                        matchedBooks.length > 0 && (book.shelf = matchedBooks[0].shelf);
+                    });
                     this.setState(() => ({ searchResults: data, isValid: true }));
-                });
+                } catch (error) {
+                    console.log('error: ', error);
+                }
             } else {
                 this.setState(() => ({ searchResults: [], isValid: true }));
             }
