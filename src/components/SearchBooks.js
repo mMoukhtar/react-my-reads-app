@@ -14,7 +14,7 @@ export class SearchBooks extends Component {
     static propTypes = {
         validSearchKeywords: PropTypes.array.isRequired,
         list: PropTypes.array.isRequired,
-        onAddBook: PropTypes.func.isRequired,
+        onChange: PropTypes.func.isRequired,
     };
 
     isValidQuery = (query) => {
@@ -22,15 +22,15 @@ export class SearchBooks extends Component {
         return validSearchKeywords.filter((keyword) => keyword.toLowerCase().includes(query)).length > 0;
     };
 
-    // Question
-    // I used the below logic to compare the list of books returned from search API with the list of
-    // books on shelves! is this the best way to accomplish this task?
+    updateState({ oldBook, newShelf, changes }) {
+        this.props.onChange({ oldBook, newShelf, changes });
+    }
+
     search = async (query) => {
         if (this.isValidQuery(query)) {
             if (query !== '') {
                 try {
                     const data = await BooksAPI.search(query);
-                    console.log(data);
                     data.forEach((book) => {
                         const matchedBooks = this.props.list.filter((listBooks) => listBooks.id === book.id);
                         matchedBooks.length > 0 && (book.shelf = matchedBooks[0].shelf);
@@ -57,7 +57,7 @@ export class SearchBooks extends Component {
                         <BookShelf
                             title={'Search Results'}
                             books={searchResults}
-                            onChange={this.props.onAddBook}
+                            onChange={this.props.onChange}
                         />
                     )}
                     {!isValid && <div>Invalid Search Keyworkd!</div>}

@@ -20,7 +20,16 @@ const Book = (props) => {
                 <BookShelfChanger
                     shelf={shelf}
                     updateShelf={(newShelf) => {
-                        props.onChange({ oldBook: { ...book }, newShelf });
+                        props.onChange({
+                            oldBook: { ...book },
+                            newShelf,
+                            changes:
+                                newShelf === 'none'
+                                    ? bookChanges.removed
+                                    : book.shelf
+                                    ? bookChanges.changed
+                                    : bookChanges.new,
+                        });
                     }}
                 />
             </div>
@@ -36,4 +45,7 @@ Book.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
-export default Book;
+const bookChanges = { new: 'new', changed: 'changed', removed: 'removed' };
+Object.freeze(bookChanges);
+
+export { bookChanges, Book as default };

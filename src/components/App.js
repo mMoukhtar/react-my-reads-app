@@ -3,6 +3,7 @@ import { Route } from 'react-router-dom';
 import * as BooksAPI from '../api/BooksAPI';
 import { searchKeywords } from '../api/validSearchKeywords';
 import BooksList from './BooksList';
+import { bookChanges } from './Book';
 import SearchBooks from './SearchBooks';
 
 class BooksApp extends Component {
@@ -20,61 +21,48 @@ class BooksApp extends Component {
         }
     }
 
-    // Question #1:
-    // I am using this arrow function and passing it down multiple level to Book child components!
-    // Is this correct or should I use different approach?
-    // Question #2:
-    // Is there a better way to write the below code?
-    changeShelf = ({ oldBook, newShelf }) => {
+    changeShelf = ({ oldBook, newShelf, changes }) => {
         const { id: oldBookId, shelf: oldShelf } = oldBook;
+        console.log('oldShelf', oldShelf, 'newShelf', newShelf);
         this.setState((oldState) => {
-            const oldShelfBooksAfterUpdate = oldState[oldShelf].filter((book) => book.id !== oldBookId);
-            const containsBooks = oldShelfBooksAfterUpdate.length >= 1;
-            // Create new State Object
-            //1. Delete changed shelf from
-            delete oldState[oldShelf];
-            //2. Copy old object without changed shelf
-            let newState = { ...oldState };
-            //3. If selected shelf not none
-            //   check if the shelf is none and that shelf exists if doesn't exist create new shelf
-            if (newShelf !== 'none') {
-                newState[newShelf] = newState[newShelf] ? newState[newShelf] : [];
-                //   Push book to shelf
-                newState[newShelf].push({
-                    ...oldBook,
-                    shelf: newShelf,
-                });
+            const newState = { ...oldState };
+            switch (changes) {
+                case bookChanges.new:
+                    newState[newShelf] = [
+                        oldState[newShelf]
+                            ? [...oldState[newShelf], { ...oldBook, shelf: newShelf }]
+                            : [{ ...oldBook, shelf: newShelf }],
+                    ];
+                    break;
+                case bookChanges.removed:
+                case bookChanges.changed: {
+                    const oldShelfBooksAfterUpdate = this.getShelfBooksWithoutId(
+                        oldState,
+                        oldShelf,
+                        oldBookId
+                    );
+                    delete newState[oldShelf];
+                    this.containsBooks(oldShelfBooksAfterUpdate) &&
+                        (newState[oldBook.shelf] = [...oldShelfBooksAfterUpdate]);
+                    newShelf !== 'none' &&
+                        (newState[newShelf] = newState[newShelf]
+                            ? [...newState[newShelf], { ...oldBook, shelf: newShelf }]
+                            : [{ ...oldBook, shelf: newShelf }]);
+                    break;
+                }
+
+                default:
+                    console.log(':: Undefined Change');
+                    break;
             }
-            // 4. If old shelf still cotains books add the updated books to new state object
-            containsBooks && (newState[oldBook.shelf] = [...oldShelfBooksAfterUpdate]);
             return newState;
         });
         BooksAPI.update(oldBook, newShelf);
     };
 
-    existingBook = (bookId) => {
-        const matchedBooks = Object.values(this.state)
-            .flat()
-            .filter((book) => book.id === bookId);
-        return matchedBooks.length > 0 ? true : false;
-    };
+    containsBooks = (shelf) => shelf.length > 0;
 
-    addBook = ({ oldBook, newShelf }) => {
-        console.log(oldBook, newShelf);
-        if (this.existingBook(oldBook.id)) {
-            console.log('existing');
-            this.changeShelf({ oldBook, newShelf });
-        } else {
-            console.log('new');
-            this.setState((oldState) => ({
-                ...oldState,
-                [newShelf]: oldState[newShelf]
-                    ? [...oldState[newShelf], { ...oldBook, shelf: newShelf }]
-                    : [{ ...oldBook, shelf: newShelf }],
-            }));
-            BooksAPI.update(oldBook, newShelf);
-        }
-    };
+    getShelfBooksWithoutId = (state, shelf, id) => state[shelf].filter((book) => book.id !== id);
 
     groupByShelf = (books) =>
         books.reduce((acc, curr) => {
@@ -97,7 +85,7 @@ class BooksApp extends Component {
                         <SearchBooks
                             list={Object.values(this.state).flat()}
                             validSearchKeywords={searchKeywords}
-                            onAddBook={this.addBook}
+                            onChange={this.changeShelf}
                         />
                     )}
                 />
